@@ -2,25 +2,29 @@
 import type { ApiResponse } from '@/types/Api'
 import type { BikeParking } from '@/types/Bikes'
 import { API_BASE_URL, API_LIMIT } from '@/utils/const'
-import { ref } from 'vue'
+import { useQuery } from '@pinia/colada'
 
+async function fetchAllBikeParkings(): Promise<BikeParking[]> {
+  const firstPage = await fetch(`${API_BASE_URL}?limit=${API_LIMIT}`).then(r => r.json()) as ApiResponse
+  const { total_count } = firstPage
 
-const res = ref<BikeParking[]>([])
-
-const firstPage = await fetch(`${API_BASE_URL}?limit=${API_LIMIT}`).then(r => r.json()) as ApiResponse
-const { total_count } = firstPage
-
-const remainingPages = await Promise.all(
-  Array.from(
-    { length: Math.ceil((total_count - API_LIMIT) / API_LIMIT) },
-    (_, i) => fetch(`${API_BASE_URL}?limit=${API_LIMIT}&offset=${(i + 1) * API_LIMIT}`).then(r => r.json()) as Promise<ApiResponse>
+  const remainingPages = await Promise.all(
+    Array.from(
+      { length: Math.ceil((total_count - API_LIMIT) / API_LIMIT) },
+      (_, i) => fetch(`${API_BASE_URL}?limit=${API_LIMIT}&offset=${(i + 1) * API_LIMIT}`).then(r => r.json()) as Promise<ApiResponse>
+    )
   )
-)
 
-res.value = [
-  ...(firstPage.results ?? []),
-  ...remainingPages.flatMap(page => page.results ?? [])
-]
+  return [
+    ...(firstPage.results ?? []),
+    ...remainingPages.flatMap(page => page.results ?? [])
+  ]
+}
+
+const { state } = useQuery({
+  key: ['bike-parkings'],
+  query: fetchAllBikeParkings,
+})
 </script>
 
 <template>
@@ -31,8 +35,8 @@ res.value = [
   </header>
 
   <main class="h-screen w-screen grid place-items-center">
-    <pre>
-      {{ res }}
-    </pre>
+    <div v-if="state.status === 'pending'">Loading...</div>
+    <div v-else-if="state.status === 'error'">Error: {{ state.error.message }}</div>
+    <pre v-else>{{ state.data }}</pre>
   </main>
 </template>
