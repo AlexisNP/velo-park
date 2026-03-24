@@ -1,7 +1,9 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useDark } from '@vueuse/core';
+
+useDark({ storageKey: "theme" })
+</script>
 
 <template>
   <RouterView />
 </template>
-
-<style scoped></style>
