@@ -57,7 +57,7 @@ const { zoom, minZoom, center } = useMap()
         <LTileLayer url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png" layer-type="base" />
 
         <!-- Review CSGroup -->
-        <LMarkerClusterGroup v-if="state.data.length > 0" :max-cluster-radius="30" :disable-clustering-at-zoom="20">
+        <LMarkerClusterGroup v-if="state.data.length > 0" :max-cluster-radius="30" :disable-clustering-at-zoom="17">
           <BikeMarker v-once v-for="park in state.data" :key="park.code_insee" :park />
         </LMarkerClusterGroup>
       </LMap>
@@ -66,30 +66,6 @@ const { zoom, minZoom, center } = useMap()
 </template>
 
 <style lang="scss">
-.leaflet-marker-icon:not(.marker-cluster) {
-  border-radius: 50%;
-  color: var(--color-muted-foreground);
-  background-color: var(--color-background);
-  display: grid;
-  place-items: center;
-}
-
-.leaflet-popup-content-wrapper {
-  border-radius: 5px;
-
-  .leaflet-popup-content {
-    margin: 10px 20px 10px 15px;
-
-    p {
-      margin-bottom: 0;
-    }
-  }
-}
-
-.marker-cluster span {
-  font-weight: var(--font-weight-medium);
-}
-
 .marker-cluster-small {
   background-color: color-mix(in srgb, var(--color-green-500) 25%, transparent);
 
