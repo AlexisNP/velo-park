@@ -2,18 +2,17 @@
 import 'leaflet/dist/leaflet.css'
 import 'vue-leaflet-markercluster/dist/style.css'
 
-import L, { type PointTuple } from 'leaflet'
+import L from 'leaflet'
 globalThis.L = L
 
+import { useMap } from '@/stores/map'
 import type { ApiResponse } from '@/types/Api'
 import type { BikeParking } from '@/types/Bikes'
 import { API_BASE_URL, API_LIMIT } from '@/utils/const'
 import { useQuery } from '@pinia/colada'
-import { LControlZoom, LIcon, LMap, LMarker, LPopup, LTileLayer } from '@vue-leaflet/vue-leaflet'
+import { LControlZoom, LMap, LTileLayer } from '@vue-leaflet/vue-leaflet'
 import { LMarkerClusterGroup } from 'vue-leaflet-markercluster'
-import { useMap } from '@/stores/map'
-import { computed, ref } from 'vue'
-import { PhBicycle } from '@phosphor-icons/vue'
+import BikeMarker from './BikeMarker.vue'
 
 async function fetchAllBikeParkings(): Promise<BikeParking[]> {
   const firstPage = await fetch(`${API_BASE_URL}?limit=${API_LIMIT}`).then(r => r.json()) as ApiResponse
@@ -38,11 +37,6 @@ const { state } = useQuery({
 })
 
 const { zoom, minZoom, center } = useMap()
-const normalIconSize: PointTuple = [30, 30]
-
-const iconSize = ref<PointTuple>(normalIconSize)
-const iconAnchor = computed<PointTuple>(() => [iconSize.value[0] / 2, iconSize.value[1]])
-const popupOffset = [0, iconSize.value[0] * -0.66]
 </script>
 
 <template>
@@ -64,33 +58,7 @@ const popupOffset = [0, iconSize.value[0] * -0.66]
 
         <!-- Review CSGroup -->
         <LMarkerClusterGroup v-if="state.data.length > 0" :max-cluster-radius="30" :disable-clustering-at-zoom="20">
-          <LMarker v-once v-for="park in state.data" :key="park.code_insee"
-            :lat-lng="[park.geo_point_2d.lat, park.geo_point_2d.lon]">
-            <LPopup :options="{ offset: popupOffset, maxWidth: 380, minWidth: 180 }">
-              <div>
-                <h2 class="font-bold">
-                  {{ park.nom_voie }}, {{ park.nom_commune }}
-                </h2>
-
-                <div class="text-xs">
-                  {{ park.type }}, <strong>{{ park.nb_total_place }} places</strong>
-                </div>
-
-                <hr class="border-muted-foreground opacity-50 my-1">
-
-                <div v-if="park.annee_mes" class="italic text-xs">
-                  Mis en service en {{ park.annee_mes }}
-                </div>
-
-                <div v-if="park.commentaire" v-html="park.commentaire"
-                  class="before:content-[''] before:inline-block before:w-1 before:h-[1em] before:-my-0.5 before:mr-1 before:rounded-xs before:bg-muted-foreground italic text-xs text-muted-foreground" />
-              </div>
-            </LPopup>
-
-            <LIcon :icon-size :icon-anchor>
-              <PhBicycle size="18" />
-            </LIcon>
-          </LMarker>
+          <BikeMarker v-once v-for="park in state.data" :key="park.code_insee" :park />
         </LMarkerClusterGroup>
       </LMap>
     </template>
