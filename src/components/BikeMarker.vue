@@ -5,9 +5,11 @@ import { PhBicycle, PhLockKey, PhSquareHalf, PhWarehouse } from '@phosphor-icons
 import { LIcon, LMarker, LPopup } from '@vue-leaflet/vue-leaflet';
 import type { PointTuple } from 'leaflet';
 import { computed, ref } from 'vue';
+import { UNCOVERED_KEY, COVERED_KEY, BOXED_KEY, KORRIGO_KEY } from '@/utils/const';
 
 defineProps<{
   park: BikeParking
+  group: 'covered' | 'non-covered' | 'premium'
 }>()
 
 const normalIconSize: PointTuple = [30, 30]
@@ -45,13 +47,14 @@ const popupOffset = [0, iconSize.value[0] * -0.66]
     </LPopup>
 
     <LIcon :icon-size :icon-anchor :class-name="cn(
-      { 'korrigo': park.condition_acces === 'Abonnement Korrigo' },
-      { 'highlight': park.type === 'Box individuel' || park.type === 'Abrité' },
+      `group-${group}`,
+      { 'korrigo': park.condition_acces === KORRIGO_KEY },
+      { 'highlight': park.type === BOXED_KEY || park.type === COVERED_KEY },
     )">
-      <PhBicycle v-if="park.type === 'Non abrité'" size="18" />
-      <PhWarehouse v-else-if="park.type === 'Abrité'" size="18" />
-      <PhSquareHalf v-else-if="park.type === 'Box individuel'" size="18" />
-      <PhLockKey v-else-if="park.type === 'Collectif sécurisé'" size="18" weight="fill" />
+      <PhBicycle v-if="park.type === UNCOVERED_KEY" size="18" />
+      <PhWarehouse v-else-if="park.type === COVERED_KEY" size="18" />
+      <PhSquareHalf v-else-if="park.type === BOXED_KEY" size="18" />
+      <PhLockKey v-else-if="park.condition_acces === KORRIGO_KEY" size="18" weight="fill" />
     </LIcon>
   </LMarker>
 </template>

@@ -7,9 +7,21 @@ export const useMap = defineStore('map', () => {
   const minZoom = 6
   const center = ref<PointTuple>([48.11180645878813, -1.6637869497745246])
 
+  const maxClusterRadius = 30
+  const disableClusteringAtZoom = 17
+
+  const filterUncovered = ref(true)
+  const filterCovered = ref(true)
+  const filterKorrigo = ref(true)
+
   return {
     zoom,
     minZoom,
     center,
+    maxClusterRadius,
+    disableClusteringAtZoom,
+    filterUncovered,
+    filterCovered,
+    filterKorrigo,
   }
 })

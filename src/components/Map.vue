@@ -8,11 +8,14 @@ globalThis.L = L
 import { useMap } from '@/stores/map'
 import type { ApiResponse } from '@/types/Api'
 import type { BikeParking } from '@/types/Bikes'
-import { API_BASE_URL, API_LIMIT } from '@/utils/const'
+import { API_BASE_URL, API_LIMIT, MAP_TILELAYER_URL, SpotAccess, SpotType } from '@/utils/const'
 import { useQuery } from '@pinia/colada'
 import { LControlZoom, LMap, LTileLayer } from '@vue-leaflet/vue-leaflet'
 import { LMarkerClusterGroup } from 'vue-leaflet-markercluster'
 import BikeMarker from './BikeMarker.vue'
+import BikeFilters from './BikeFilters.vue'
+import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
 
 async function fetchAllBikeParkings(): Promise<BikeParking[]> {
   const firstPage = await fetch(`${API_BASE_URL}?limit=${API_LIMIT}`).then(r => r.json()) as ApiResponse
@@ -36,17 +39,29 @@ const { state } = useQuery({
   query: fetchAllBikeParkings,
 })
 
-const { zoom, minZoom, center } = useMap()
+// Groups different parking spot by types
+const coveredTypes = new Set([SpotType.Covered, SpotType.Boxed])
+
+const coveredParkings = computed(() =>
+  state.value.data?.filter(p => coveredTypes.has(p.type as SpotType)) ?? []
+)
+
+const nonCoveredParkings = computed(() =>
+  state.value.data?.filter(p => p.type === SpotType.Uncovered) ?? []
+)
+
+const premiumParkings = computed(() =>
+  state.value.data?.filter(p => p.condition_acces === SpotAccess.Korrigo) ?? []
+)
+
+const { zoom, minZoom, center, maxClusterRadius, disableClusteringAtZoom } = useMap()
+const { filterUncovered, filterCovered, filterKorrigo } = storeToRefs(useMap())
 </script>
 
 <template>
-  <header class="sr-only">
-    <h1>
-      Carte interactive des parkings vélo de Rennes Métropole
-    </h1>
-  </header>
+  <BikeFilters />
 
-  <main class="h-screen w-screen grid place-items-center">
+  <main class="relative z-0 h-screen w-screen grid place-items-center">
     <div v-if="state.status === 'pending'">Loading...</div>
     <div v-else-if="state.status === 'error'">Error: {{ state.error.message }}</div>
     <template v-else>
@@ -54,11 +69,24 @@ const { zoom, minZoom, center } = useMap()
         :useGlobalLeaflet="true">
         <LControlZoom position="bottomright" />
 
-        <LTileLayer url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png" layer-type="base" />
+        <LTileLayer v-once :url="MAP_TILELAYER_URL" layer-type="base" />
 
-        <!-- Review CSGroup -->
-        <LMarkerClusterGroup v-if="state.data.length > 0" :max-cluster-radius="30" :disable-clustering-at-zoom="17">
-          <BikeMarker v-once v-for="park in state.data" :key="park.code_insee" :park />
+        <!-- Covered parkings: Abrité, Box individuel -->
+        <LMarkerClusterGroup :visible="filterUncovered" v-if="coveredParkings.length > 0" :max-cluster-radius
+          :disable-clustering-at-zoom>
+          <BikeMarker v-once v-for="park in coveredParkings" :key="park.id_parc_velo" :park group="covered" />
+        </LMarkerClusterGroup>
+
+        <!-- Non-covered parkings: Non abrité -->
+        <LMarkerClusterGroup :visible="filterCovered" v-if="nonCoveredParkings.length > 0" :max-cluster-radius
+          :disable-clustering-at-zoom>
+          <BikeMarker v-once v-for="park in nonCoveredParkings" :key="park.id_parc_velo" :park group="non-covered" />
+        </LMarkerClusterGroup>
+
+        <!-- Premium parkings: Abonnement Korrigo -->
+        <LMarkerClusterGroup :visible="filterKorrigo" v-if="premiumParkings.length > 0" :max-cluster-radius
+          :disable-clustering-at-zoom>
+          <BikeMarker v-once v-for="park in premiumParkings" :key="park.id_parc_velo" :park group="premium" />
         </LMarkerClusterGroup>
       </LMap>
     </template>
