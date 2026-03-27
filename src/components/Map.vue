@@ -40,26 +40,36 @@ const { state } = useQuery({
 })
 
 // Groups different parking spot by types
+const nonCoveredParkings = computed(() =>
+  state.value.data?.filter(p => p.type === SpotType.Uncovered) ?? []
+)
+const nonCoveredParkingsSpots = computed(() => {
+  return nonCoveredParkings.value.reduce((acc, val) => acc + val.nb_total_place, 0)
+})
+
 const coveredTypes = new Set([SpotType.Covered, SpotType.Boxed])
 
 const coveredParkings = computed(() =>
   state.value.data?.filter(p => coveredTypes.has(p.type as SpotType)) ?? []
 )
-
-const nonCoveredParkings = computed(() =>
-  state.value.data?.filter(p => p.type === SpotType.Uncovered) ?? []
-)
+const coveredParkingsSpots = computed(() => {
+  return coveredParkings.value.reduce((acc, val) => acc + val.nb_total_place, 0)
+})
 
 const premiumParkings = computed(() =>
   state.value.data?.filter(p => p.condition_acces === SpotAccess.Korrigo) ?? []
 )
+const premiumParkingsSpots = computed(() => {
+  return premiumParkings.value.reduce((acc, val) => acc + val.nb_total_place, 0)
+})
 
 const { zoom, minZoom, center, maxClusterRadius, disableClusteringAtZoom } = useMap()
 const { filterUncovered, filterCovered, filterKorrigo } = storeToRefs(useMap())
 </script>
 
 <template>
-  <BikeFilters />
+  <BikeFilters :nb-uncovered="nonCoveredParkingsSpots" :nb-covered="coveredParkingsSpots"
+    :nb-korrigo="premiumParkingsSpots" />
 
   <main class="relative z-0 h-screen w-screen grid place-items-center">
     <div v-if="state.status === 'pending'">Loading...</div>
