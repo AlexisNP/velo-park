@@ -82,13 +82,13 @@ const { filterUncovered, filterCovered, filterKorrigo } = storeToRefs(useMap())
         <LTileLayer v-once :url="MAP_TILELAYER_URL" layer-type="base" />
 
         <!-- Covered parkings: Abrité, Box individuel -->
-        <LMarkerClusterGroup :visible="filterUncovered" v-if="coveredParkings.length > 0" :max-cluster-radius
+        <LMarkerClusterGroup :visible="filterCovered" v-if="coveredParkings.length > 0" :max-cluster-radius
           :disable-clustering-at-zoom>
           <BikeMarker v-once v-for="park in coveredParkings" :key="park.id_parc_velo" :park group="covered" />
         </LMarkerClusterGroup>
 
         <!-- Non-covered parkings: Non abrité -->
-        <LMarkerClusterGroup :visible="filterCovered" v-if="nonCoveredParkings.length > 0" :max-cluster-radius
+        <LMarkerClusterGroup :visible="filterUncovered" v-if="nonCoveredParkings.length > 0" :max-cluster-radius
           :disable-clustering-at-zoom>
           <BikeMarker v-once v-for="park in nonCoveredParkings" :key="park.id_parc_velo" :park group="non-covered" />
         </LMarkerClusterGroup>
