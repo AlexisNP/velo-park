@@ -107,6 +107,10 @@ const { filterUncovered, filterCovered, filterKorrigo } = storeToRefs(useMap())
 </template>
 
 <style lang="scss">
+.leaflet-container {
+  background-color: var(--background);
+}
+
 .marker-cluster-small {
   background-color: color-mix(in srgb, var(--color-green-500) 25%, transparent);
 
