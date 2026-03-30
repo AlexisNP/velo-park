@@ -11,11 +11,10 @@ import type { BikeParking } from '@/types/Bikes'
 import { API_BASE_URL, API_LIMIT, MAP_TILELAYER_URL, SpotAccess, SpotType } from '@/utils/const'
 import { useQuery } from '@pinia/colada'
 import { LControlZoom, LMap, LTileLayer } from '@vue-leaflet/vue-leaflet'
-import { LMarkerClusterGroup } from 'vue-leaflet-markercluster'
-import BikeMarker from './BikeMarker.vue'
 import BikeFilters from './BikeFilters.vue'
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
+import BikeClusterLayer from './BikeClusterLayer.vue'
 
 async function fetchAllBikeParkings(): Promise<BikeParking[]> {
   const firstPage = await fetch(`${API_BASE_URL}?limit=${API_LIMIT}`).then(r => r.json()) as ApiResponse
@@ -84,23 +83,14 @@ const { filterUncovered, filterCovered, filterKorrigo } = storeToRefs(useMap())
 
         <LTileLayer v-once :url="MAP_TILELAYER_URL" layer-type="base" />
 
-        <!-- Covered parkings: Abrité, Box individuel -->
-        <LMarkerClusterGroup :visible="filterCovered" v-if="coveredParkings.length > 0" :max-cluster-radius
-          :disable-clustering-at-zoom>
-          <BikeMarker v-once v-for="park in coveredParkings" :key="park.id_parc_velo" :park group="covered" />
-        </LMarkerClusterGroup>
+        <BikeClusterLayer :parkings="coveredParkings" group="covered" :visible="filterCovered" :max-cluster-radius
+          :disable-clustering-at-zoom />
 
-        <!-- Non-covered parkings: Non abrité -->
-        <LMarkerClusterGroup :visible="filterUncovered" v-if="nonCoveredParkings.length > 0" :max-cluster-radius
-          :disable-clustering-at-zoom>
-          <BikeMarker v-once v-for="park in nonCoveredParkings" :key="park.id_parc_velo" :park group="non-covered" />
-        </LMarkerClusterGroup>
+        <BikeClusterLayer :parkings="nonCoveredParkings" group="non-covered" :visible="filterUncovered"
+          :max-cluster-radius :disable-clustering-at-zoom />
 
-        <!-- Premium parkings: Abonnement Korrigo -->
-        <LMarkerClusterGroup :visible="filterKorrigo" v-if="premiumParkings.length > 0" :max-cluster-radius
-          :disable-clustering-at-zoom>
-          <BikeMarker v-once v-for="park in premiumParkings" :key="park.id_parc_velo" :park group="premium" />
-        </LMarkerClusterGroup>
+        <BikeClusterLayer :parkings="premiumParkings" group="premium" :visible="filterKorrigo" :max-cluster-radius
+          :disable-clustering-at-zoom />
       </LMap>
     </template>
   </main>
