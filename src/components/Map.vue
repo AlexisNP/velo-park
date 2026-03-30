@@ -69,7 +69,7 @@ const { filterUncovered, filterCovered, filterKorrigo } = storeToRefs(useMap())
 
 <template>
   <Transition enter-from-class="opacity-0 translate-y-2"
-    enter-active-class="transition-all duration-500 ease-out delay-300" enter-to-class="opacity-100 translate-y-0">
+    enter-active-class="transition-all duration-300 ease-out delay-500" enter-to-class="opacity-100 translate-y-0">
     <BikeFilters v-if="state.status === 'success'" :nb-uncovered="nonCoveredParkingsSpots"
       :nb-covered="coveredParkingsSpots" :nb-korrigo="premiumParkingsSpots" />
   </Transition>
