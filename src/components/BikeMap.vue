@@ -100,28 +100,4 @@ const { filterUncovered, filterCovered, filterKorrigo } = storeToRefs(useMap())
 .leaflet-container {
   background-color: var(--background);
 }
-
-.marker-cluster-small {
-  background-color: color-mix(in srgb, var(--color-green-500) 25%, transparent);
-
-  div {
-    background-color: color-mix(in srgb, var(--color-green-500) 33%, transparent);
-  }
-}
-
-.marker-cluster-medium {
-  background-color: color-mix(in srgb, var(--color-yellow-400) 25%, transparent);
-
-  div {
-    background-color: color-mix(in srgb, var(--color-yellow-400) 33%, transparent);
-  }
-}
-
-.marker-cluster-large {
-  background-color: color-mix(in srgb, var(--color-rose-400) 25%, transparent);
-
-  div {
-    background-color: color-mix(in srgb, var(--color-rose-400) 33%, transparent);
-  }
-}
 </style>

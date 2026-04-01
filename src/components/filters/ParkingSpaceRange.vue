@@ -1,43 +1,43 @@
 <script lang="ts" setup>
 import { SliderRange, SliderRoot, SliderThumb, SliderTrack } from 'reka-ui'
-import { ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useMap, SPOTS_MIN, SPOTS_MAX } from '@/stores/map'
+import { ref } from 'vue'
+import { useDebounceFn } from '@vueuse/core'
 
-const MIN = 0
-const MAX = 100
+const { spotsRange } = storeToRefs(useMap())
 
-const minSpots = ref(MIN)
-const maxSpots = ref(MAX)
-const spotsRange = ref([minSpots.value, maxSpots.value])
+const MIN = SPOTS_MIN
+const MAX = SPOTS_MAX
 
-watch(spotsRange, ([newMin, newMax]) => {
-  if (newMin === undefined || newMax === undefined) return
-  minSpots.value = newMin
-  maxSpots.value = newMax
-})
+const localRange = ref<[number, number]>([...spotsRange.value] as [number, number])
 
-watch(minSpots, (val) => {
-  if (val !== spotsRange.value[0])
-    spotsRange.value = [Math.min(val, spotsRange.value[1]!), spotsRange.value[1]!]
-})
+const commitToStore = useDebounceFn((val: [number, number]) => {
+  spotsRange.value = val
+}, 500)
 
-watch(maxSpots, (val) => {
-  if (val !== spotsRange.value[1])
-    spotsRange.value = [spotsRange.value[0]!, Math.max(val, spotsRange.value[0]!)]
-})
+function onRangeUpdate(val: number[] | undefined) {
+  if (!val) return
+
+  localRange.value = val as [number, number]
+  commitToStore(val as [number, number])
+}
 </script>
 
 <template>
-  <div class="mt-1 col-span-2">
-    <label class="flex justify-between">
-      <span>Nombre de places</span>
-      <span class="text-muted-foreground">
-        {{ spotsRange[0] }} – {{ spotsRange[1] }}<template v-if="spotsRange[1] === MAX">+</template>
+  <div>
+    <div class="flex items-center justify-between">
+      <span
+        class="text-sm font-medium relative isolate before:contents-[''] before:block before:w-full before:bg-amber-500/15 before:h-2 before:absolute before:bottom-0.5 before:-z-10">Places
+        totales</span>
+      <span class="text-xs text-muted-foreground">
+        {{ localRange[0] }} – {{ localRange[1] }}<template v-if="localRange[1] === MAX">+</template>
       </span>
-    </label>
+    </div>
 
     <div class="mt-1">
-      <SliderRoot v-model="spotsRange" class="relative flex items-center select-none touch-none w-full py-2" :min="MIN"
-        :max="MAX" :step="5">
+      <SliderRoot :model-value="localRange" @update:model-value="onRangeUpdate"
+        class="relative flex items-center select-none touch-none w-full py-2" :min="MIN" :max="MAX" :step="5">
         <SliderTrack class="bg-muted/10 relative grow rounded-full h-1.5">
           <SliderRange class="absolute bg-primary rounded-full h-full" />
         </SliderTrack>

@@ -6,8 +6,10 @@ import { LIcon, LMarker, LPopup } from '@vue-leaflet/vue-leaflet';
 import type { PointTuple } from 'leaflet';
 import { computed, ref } from 'vue';
 import { UNCOVERED_KEY, COVERED_KEY, BOXED_KEY, KORRIGO_KEY } from '@/utils/const';
+import { storeToRefs } from 'pinia';
+import { useMap } from '@/stores/map';
 
-defineProps<{
+const props = defineProps<{
   park: BikeParking
   group: 'covered' | 'non-covered' | 'premium'
 }>()
@@ -17,10 +19,17 @@ const normalIconSize: PointTuple = [30, 30]
 const iconSize = ref<PointTuple>(normalIconSize)
 const iconAnchor = computed<PointTuple>(() => [iconSize.value[0] / 2, iconSize.value[1]])
 const popupOffset = [0, iconSize.value[0] * -0.66]
+
+const { spotsRange } = storeToRefs(useMap())
+
+const isMarkerVisible = computed(() => {
+  return spotsRange.value[0] <= props.park.nb_total_place && props.park.nb_total_place <= spotsRange.value[1]
+})
 </script>
 
 <template>
-  <LMarker :lat-lng="[park.geo_point_2d.lat, park.geo_point_2d.lon]">
+  {{ spotsRange }}
+  <LMarker :lat-lng="[park.geo_point_2d.lat, park.geo_point_2d.lon]" :visible="isMarkerVisible">
     <LPopup :options="{ offset: popupOffset, maxWidth: 520, minWidth: 240 }">
       <div>
         <h2 class="font-bold">
@@ -29,6 +38,16 @@ const popupOffset = [0, iconSize.value[0] * -0.66]
 
         <div class="text-xs">
           {{ park.type }}, <strong>{{ park.nb_total_place }} places</strong>
+
+          <template v-if="park.nb_support_cargo">
+            <br>
+            …dont <strong>{{ park.nb_support_cargo }} supports cargo</strong>
+          </template>
+
+          <template v-if="park.nb_support_std">
+            <br>
+            …dont <strong>{{ park.nb_support_std }} supports STD</strong>
+          </template>
         </div>
 
         <div v-if="park.condition_acces === 'Abonnement Korrigo'">
@@ -52,8 +71,8 @@ const popupOffset = [0, iconSize.value[0] * -0.66]
       { 'highlight': park.type === BOXED_KEY || park.type === COVERED_KEY },
     )">
       <PhBicycle v-if="park.type === UNCOVERED_KEY" size="18" />
-      <PhWarehouse v-else-if="park.type === COVERED_KEY" size="18" />
-      <PhSquareHalf v-else-if="park.type === BOXED_KEY" size="18" />
+      <PhWarehouse v-else-if="park.type === COVERED_KEY" size="18" weight="light" />
+      <PhSquareHalf v-else-if="park.type === BOXED_KEY" size="18" weight="light" />
       <PhLockKey v-else-if="park.condition_acces === KORRIGO_KEY" size="18" weight="fill" />
     </LIcon>
   </LMarker>
@@ -73,9 +92,8 @@ const popupOffset = [0, iconSize.value[0] * -0.66]
   }
 
   &.highlight {
-    color: var(--color-background);
-    border: 2px solid var(--color-muted-foreground);
-    background-color: var(--color-foreground);
+    color: var(--color-amber-400);
+    border: 2px solid color-mix(in srgb, var(--color-amber-400) 50%, var(--color-background));
   }
 }
 

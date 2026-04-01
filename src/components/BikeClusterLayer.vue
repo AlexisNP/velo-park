@@ -17,3 +17,39 @@ defineProps<{
     <BikeMarker v-once v-for="park in parkings" :key="park.id_parc_velo" :park :group />
   </LMarkerClusterGroup>
 </template>
+
+<style lang="scss">
+.marker-cluster div {
+  font-family: var(--default-font-family);
+  font-size: .9em;
+}
+
+.marker-cluster span {
+  font-weight: var(--font-weight-bold);
+  opacity: .85;
+}
+
+.marker-cluster-small {
+  background-color: color-mix(in srgb, var(--color-green-500) 12.5%, transparent);
+
+  div {
+    background-color: color-mix(in srgb, var(--color-green-500) 20%, transparent);
+  }
+}
+
+.marker-cluster-medium {
+  background-color: color-mix(in srgb, var(--color-yellow-400) 12.5%, transparent);
+
+  div {
+    background-color: color-mix(in srgb, var(--color-yellow-400) 20%, transparent);
+  }
+}
+
+.marker-cluster-large {
+  background-color: color-mix(in srgb, var(--color-rose-400) 12.5%, transparent);
+
+  div {
+    background-color: color-mix(in srgb, var(--color-rose-400) 20%, transparent);
+  }
+}
+</style>

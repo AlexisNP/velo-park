@@ -14,21 +14,22 @@ defineProps<{
 </script>
 
 <template>
-  <aside class="max-w-xs absolute top-5 left-5 z-10 p-2 bg-slate-50 text-slate-950 text-xs rounded-xs">
-    <form>
-      <div class="grid grid-cols-2 gap-1.5">
-        <div class="col-span-2">
+  <aside class="max-w-xs absolute top-5 left-5 z-10 p-2 bg-slate-50 text-slate-950 rounded-xs">
+    <form class="grid grid-cols-1 gap-3">
+      <fieldset>
+        <legend
+          class="mb-1.5 text-sm font-medium relative isolate before:contents-[''] before:block before:w-full before:bg-amber-500/15 before:h-2 before:absolute before:bottom-0.5 before:-z-10">
+          Types d'emplacements
+        </legend>
+
+        <div class="grid grid-cols-1 gap-1.5">
           <Checkbox v-model="filterUncovered" :count="nbUncovered">Non-abrités</Checkbox>
-        </div>
-        <div class="col-span-2">
           <Checkbox v-model="filterCovered" :count="nbCovered">Abrités</Checkbox>
-        </div>
-        <div class="col-span-2">
           <Checkbox v-model="filterKorrigo" :count="nbKorrigo">Abonnement Korrigo</Checkbox>
         </div>
+      </fieldset>
 
-        <ParkingSpaceRange />
-      </div>
+      <ParkingSpaceRange />
     </form>
   </aside>
 </template>
