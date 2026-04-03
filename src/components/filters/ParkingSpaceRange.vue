@@ -37,7 +37,7 @@ function onRangeUpdate(val: number[] | undefined) {
 
     <div class="mt-1">
       <SliderRoot :model-value="localRange" @update:model-value="onRangeUpdate"
-        class="relative flex items-center select-none touch-none w-full py-2" :min="MIN" :max="MAX" :step="5">
+        class="relative flex items-center select-none touch-none w-full pt-2 pb-1" :min="MIN" :max="MAX" :step="5">
         <SliderTrack class="bg-muted/10 relative grow rounded-full h-1.5">
           <SliderRange class="absolute bg-primary rounded-full h-full" />
         </SliderTrack>

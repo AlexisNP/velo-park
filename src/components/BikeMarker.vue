@@ -7,7 +7,7 @@ import type { PointTuple } from 'leaflet';
 import { computed, ref } from 'vue';
 import { UNCOVERED_KEY, COVERED_KEY, BOXED_KEY, KORRIGO_KEY } from '@/utils/const';
 import { storeToRefs } from 'pinia';
-import { useMap } from '@/stores/map';
+import { SPOTS_MAX, useMap } from '@/stores/map';
 
 const props = defineProps<{
   park: BikeParking
@@ -20,15 +20,29 @@ const iconSize = ref<PointTuple>(normalIconSize)
 const iconAnchor = computed<PointTuple>(() => [iconSize.value[0] / 2, iconSize.value[1]])
 const popupOffset = [0, iconSize.value[0] * -0.66]
 
-const { spotsRange } = storeToRefs(useMap())
+const { spotsRange, filterCargoOnly, filterStdOnly } = storeToRefs(useMap())
 
-const isMarkerVisible = computed(() => {
-  return spotsRange.value[0] <= props.park.nb_total_place && props.park.nb_total_place <= spotsRange.value[1]
+const isMarkerVisibleLayers = computed(() => {
+  const [min, max] = spotsRange.value
+  const spots = props.park.nb_total_place
+
+  if (max >= SPOTS_MAX) return spots >= min
+  return spots >= min && spots <= max
 })
+
+const isMarkerVisibleEquipments = computed(() => {
+  const checks = [
+    [filterCargoOnly.value, (props.park.nb_support_cargo ?? 0) > 0],
+    [filterStdOnly.value, (props.park.nb_support_std ?? 0) > 0],
+  ] as const
+
+  return checks.every(([active, passes]) => !active || passes)
+})
+
+const isMarkerVisible = computed(() => isMarkerVisibleLayers.value && isMarkerVisibleEquipments.value)
 </script>
 
 <template>
-  {{ spotsRange }}
   <LMarker :lat-lng="[park.geo_point_2d.lat, park.geo_point_2d.lon]" :visible="isMarkerVisible">
     <LPopup :options="{ offset: popupOffset, maxWidth: 520, minWidth: 240 }">
       <div>
@@ -41,12 +55,12 @@ const isMarkerVisible = computed(() => {
 
           <template v-if="park.nb_support_cargo">
             <br>
-            …dont <strong>{{ park.nb_support_cargo }} supports cargo</strong>
+            …dont <strong>{{ park.nb_support_cargo }} cargo</strong>
           </template>
 
           <template v-if="park.nb_support_std">
             <br>
-            …dont <strong>{{ park.nb_support_std }} supports STD</strong>
+            …dont <strong>{{ park.nb_support_std }} STD</strong>
           </template>
         </div>
 

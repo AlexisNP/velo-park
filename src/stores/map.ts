@@ -17,6 +17,9 @@ export const useMap = defineStore('map', () => {
   const filterCovered = ref(true)
   const filterKorrigo = ref(true)
 
+  const filterCargoOnly = ref(false)
+  const filterStdOnly = ref(false)
+
   const spotsRange = ref<[number, number]>([SPOTS_MIN, SPOTS_MAX])
 
   return {
@@ -28,6 +31,8 @@ export const useMap = defineStore('map', () => {
     filterUncovered,
     filterCovered,
     filterKorrigo,
+    filterCargoOnly,
+    filterStdOnly,
     spotsRange,
   }
 })
