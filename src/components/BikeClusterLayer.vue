@@ -30,26 +30,26 @@ defineProps<{
 }
 
 .marker-cluster-small {
-  background-color: color-mix(in srgb, var(--color-green-500) 12.5%, transparent);
+  background-color: color-mix(in srgb, var(--color-green-400) 10%, transparent);
 
   div {
-    background-color: color-mix(in srgb, var(--color-green-500) 20%, transparent);
+    background-color: color-mix(in srgb, var(--color-green-400) 15%, transparent);
   }
 }
 
 .marker-cluster-medium {
-  background-color: color-mix(in srgb, var(--color-yellow-400) 12.5%, transparent);
+  background-color: color-mix(in srgb, var(--color-amber-500) 12.5%, transparent);
 
   div {
-    background-color: color-mix(in srgb, var(--color-yellow-400) 20%, transparent);
+    background-color: color-mix(in srgb, var(--color-amber-500) 20%, transparent);
   }
 }
 
 .marker-cluster-large {
-  background-color: color-mix(in srgb, var(--color-rose-400) 12.5%, transparent);
+  background-color: color-mix(in srgb, var(--color-rose-500) 15%, transparent);
 
   div {
-    background-color: color-mix(in srgb, var(--color-rose-400) 20%, transparent);
+    background-color: color-mix(in srgb, var(--color-rose-500) 25%, transparent);
   }
 }
 </style>
