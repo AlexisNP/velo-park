@@ -5,9 +5,13 @@ import { PhBicycle, PhLockKey, PhSquareHalf, PhWarehouse } from '@phosphor-icons
 import { LIcon, LMarker, LPopup } from '@vue-leaflet/vue-leaflet';
 import type { PointTuple } from 'leaflet';
 import { computed, ref } from 'vue';
+import { UNCOVERED_KEY, COVERED_KEY, BOXED_KEY, KORRIGO_KEY } from '@/utils/const';
+import { storeToRefs } from 'pinia';
+import { SPOTS_MAX, useMap } from '@/stores/map';
 
-defineProps<{
+const props = defineProps<{
   park: BikeParking
+  group: 'covered' | 'non-covered' | 'premium'
 }>()
 
 const normalIconSize: PointTuple = [30, 30]
@@ -15,10 +19,31 @@ const normalIconSize: PointTuple = [30, 30]
 const iconSize = ref<PointTuple>(normalIconSize)
 const iconAnchor = computed<PointTuple>(() => [iconSize.value[0] / 2, iconSize.value[1]])
 const popupOffset = [0, iconSize.value[0] * -0.66]
+
+const { spotsRange, filterCargoOnly, filterStdOnly } = storeToRefs(useMap())
+
+const isMarkerVisibleLayers = computed(() => {
+  const [min, max] = spotsRange.value
+  const spots = props.park.nb_total_place
+
+  if (max >= SPOTS_MAX) return spots >= min
+  return spots >= min && spots <= max
+})
+
+const isMarkerVisibleEquipments = computed(() => {
+  const checks = [
+    [filterCargoOnly.value, (props.park.nb_support_cargo ?? 0) > 0],
+    [filterStdOnly.value, (props.park.nb_support_std ?? 0) > 0],
+  ] as const
+
+  return checks.every(([active, passes]) => !active || passes)
+})
+
+const isMarkerVisible = computed(() => isMarkerVisibleLayers.value && isMarkerVisibleEquipments.value)
 </script>
 
 <template>
-  <LMarker :lat-lng="[park.geo_point_2d.lat, park.geo_point_2d.lon]">
+  <LMarker :lat-lng="[park.geo_point_2d.lat, park.geo_point_2d.lon]" :visible="isMarkerVisible">
     <LPopup :options="{ offset: popupOffset, maxWidth: 520, minWidth: 240 }">
       <div>
         <h2 class="font-bold">
@@ -27,6 +52,16 @@ const popupOffset = [0, iconSize.value[0] * -0.66]
 
         <div class="text-xs">
           {{ park.type }}, <strong>{{ park.nb_total_place }} places</strong>
+
+          <template v-if="park.nb_support_cargo">
+            <br>
+            …dont <strong>{{ park.nb_support_cargo }} cargo</strong>
+          </template>
+
+          <template v-if="park.nb_support_std">
+            <br>
+            …dont <strong>{{ park.nb_support_std }} STD</strong>
+          </template>
         </div>
 
         <div v-if="park.condition_acces === 'Abonnement Korrigo'">
@@ -45,13 +80,14 @@ const popupOffset = [0, iconSize.value[0] * -0.66]
     </LPopup>
 
     <LIcon :icon-size :icon-anchor :class-name="cn(
-      { 'korrigo': park.condition_acces === 'Abonnement Korrigo' },
-      { 'highlight': park.type === 'Box individuel' || park.type === 'Abrité' },
+      `group-${group}`,
+      { 'korrigo': park.condition_acces === KORRIGO_KEY },
+      { 'highlight': park.type === BOXED_KEY || park.type === COVERED_KEY },
     )">
-      <PhBicycle v-if="park.type === 'Non abrité'" size="18" />
-      <PhWarehouse v-else-if="park.type === 'Abrité'" size="18" />
-      <PhSquareHalf v-else-if="park.type === 'Box individuel'" size="18" />
-      <PhLockKey v-else-if="park.type === 'Collectif sécurisé'" size="18" weight="fill" />
+      <PhBicycle v-if="park.type === UNCOVERED_KEY" size="18" />
+      <PhWarehouse v-else-if="park.type === COVERED_KEY" size="18" weight="light" />
+      <PhSquareHalf v-else-if="park.type === BOXED_KEY" size="18" weight="light" />
+      <PhLockKey v-else-if="park.condition_acces === KORRIGO_KEY" size="18" weight="fill" />
     </LIcon>
   </LMarker>
 </template>
@@ -70,9 +106,8 @@ const popupOffset = [0, iconSize.value[0] * -0.66]
   }
 
   &.highlight {
-    color: var(--color-background);
-    border: 2px solid var(--color-muted-foreground);
-    background-color: var(--color-foreground);
+    color: var(--color-amber-400);
+    border: 2px solid color-mix(in srgb, var(--color-amber-400) 50%, var(--color-background));
   }
 }
 

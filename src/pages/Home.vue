@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Map from '@/components/Map.vue';
+import BikeMap from '@/components/BikeMap.vue';
 </script>
 
 <template>
@@ -10,6 +10,6 @@ import Map from '@/components/Map.vue';
   </header>
 
   <Suspense>
-    <Map />
+    <BikeMap />
   </Suspense>
 </template>
