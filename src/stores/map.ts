@@ -18,7 +18,7 @@ export const useMap = defineStore('map', () => {
     zoomControl: false,
   }
 
-  const maxClusterRadius = 28
+  const maxClusterRadius = 40
   const disableClusteringAtZoom = 17
 
   const filterUncovered = ref(true)
