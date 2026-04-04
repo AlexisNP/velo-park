@@ -62,7 +62,7 @@ const premiumParkingsSpots = computed(() => {
   return premiumParkings.value.reduce((acc, val) => acc + val.nb_total_place, 0)
 })
 
-const { zoom, minZoom, center, maxClusterRadius, disableClusteringAtZoom } = useMap()
+const { zoom, minZoom, center, maxBounds, maxBoundsViscosity, maxClusterRadius, disableClusteringAtZoom, extraOptions } = useMap()
 const { filterUncovered, filterCovered, filterKorrigo } = storeToRefs(useMap())
 </script>
 
@@ -77,8 +77,8 @@ const { filterUncovered, filterCovered, filterKorrigo } = storeToRefs(useMap())
     <div v-if="state.status === 'pending'">Loading...</div>
     <div v-else-if="state.status === 'error'">Error: {{ state.error.message }}</div>
     <template v-else>
-      <LMap ref="map" :min-zoom v-model:zoom="zoom" v-model:center="center" :options="{ zoomControl: false }"
-        :useGlobalLeaflet="true">
+      <LMap ref="map" :min-zoom v-model:zoom="zoom" :center="center" :max-bounds :max-bounds-viscosity
+        :options="extraOptions" :useGlobalLeaflet="true">
         <LControlZoom position="bottomright" />
 
         <LTileLayer v-once :url="MAP_TILELAYER_URL" layer-type="base" />
