@@ -34,6 +34,7 @@ function toggleGeolocation() {
   if (hasLocation.value) {
     pause()
     isRequesting.value = false
+    emit('click-geoloc')
   } else {
     isRequesting.value = true
     resume()
@@ -47,12 +48,14 @@ watch(coords, () => {
     userCoords.value = coords.value
   }
 })
+
+const emit = defineEmits(['click-geoloc'])
 </script>
 
 <template>
   <div class="max-w-xs absolute top-5 left-5 z-10 grid gap-2">
-    <button @click="toggleGeolocation"
-      :title="error?.message ?? (hasLocation ? 'Désactiver la géolocalisation' : 'Me localiser')" :class="[
+    <button @click="toggleGeolocation" :title="error?.message ?? (hasLocation ? 'Aller à ma position' : 'Me localiser')"
+      :class="[
         'size-9 grid place-items-center border shadow rounded-full cursor-pointer transition-colors',
         hasLocation
           ? 'bg-primary text-primary-foreground border-primary'
