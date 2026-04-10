@@ -15,6 +15,7 @@ defineProps<{
   nbKorrigo?: number
 }>()
 
+// Geolocation features
 const { coords, error, resume, pause, locatedAt } = useGeolocation({ immediate: false })
 
 const geolocationPermission = usePermission('geolocation')
