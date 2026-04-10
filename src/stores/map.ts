@@ -6,6 +6,7 @@ export const SPOTS_MIN = 1
 export const SPOTS_MAX = 99
 
 export const useMap = defineStore('map', () => {
+  // Map config and options
   const zoom = ref(10)
   const minZoom = 8
   const center = ref<PointTuple>([48.11180645878813, -1.6637869497745246])
@@ -18,9 +19,14 @@ export const useMap = defineStore('map', () => {
     zoomControl: false,
   }
 
+  // Cluster layers options
   const maxClusterRadius = 40
   const disableClusteringAtZoom = 17
 
+  // Geolocation
+  const userCoords = ref<Omit<GeolocationCoordinates, 'toJSON'> | null>(null)
+
+  // Active filters
   const filterUncovered = ref(true)
   const filterCovered = ref(true)
   const filterKorrigo = ref(true)
@@ -36,9 +42,10 @@ export const useMap = defineStore('map', () => {
     center,
     maxBounds,
     maxBoundsViscosity,
+    extraOptions,
     maxClusterRadius,
     disableClusteringAtZoom,
-    extraOptions,
+    userCoords,
     filterUncovered,
     filterCovered,
     filterKorrigo,

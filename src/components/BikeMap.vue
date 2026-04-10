@@ -2,7 +2,7 @@
 import 'leaflet/dist/leaflet.css'
 import 'vue-leaflet-markercluster/dist/style.css'
 
-import L from 'leaflet'
+import L, { Map } from 'leaflet'
 globalThis.L = L
 
 import { useMap } from '@/stores/map'
@@ -10,13 +10,17 @@ import type { ApiResponse } from '@/types/Api'
 import type { BikeParking } from '@/types/Bikes'
 import { API_BASE_URL, API_LIMIT, MAP_TILELAYER_URL, SpotAccess, SpotType } from '@/utils/const'
 import { useQuery } from '@pinia/colada'
-import { LControlZoom, LMap, LTileLayer } from '@vue-leaflet/vue-leaflet'
+import { LControlZoom, LIcon, LMap, LMarker, LTileLayer } from '@vue-leaflet/vue-leaflet'
 import BikeFilters from './BikeFilters.vue'
-import { computed, ref } from 'vue'
+import { computed, ref, useTemplateRef } from 'vue'
 import { storeToRefs } from 'pinia'
 import BikeClusterLayer from './BikeClusterLayer.vue'
-import { PhCircleNotch } from '@phosphor-icons/vue'
+import { PhCircleNotch, PhMapPin } from '@phosphor-icons/vue'
 
+// Map setup
+const mapRef = useTemplateRef<{ leafletObject: Map }>('map')
+
+// Data fetching
 const fetchedPages = ref(0)
 const totalPages = ref(1)
 const progress = computed(() => Math.round((fetchedPages.value / totalPages.value) * 100))
@@ -78,13 +82,22 @@ const premiumParkingsSpots = computed(() =>
 
 const { zoom, minZoom, center, maxBounds, maxBoundsViscosity, maxClusterRadius, disableClusteringAtZoom, extraOptions } = useMap()
 const { filterUncovered, filterCovered, filterKorrigo } = storeToRefs(useMap())
+
+// Geolocation
+const { userCoords } = storeToRefs(useMap())
+
+function handleClickGeoloc() {
+  if (userCoords.value) {
+    mapRef.value?.leafletObject.flyTo([userCoords.value.latitude, userCoords.value.longitude], 12)
+  }
+}
 </script>
 
 <template>
   <Transition enter-from-class="opacity-0 translate-y-2"
     enter-active-class="transition-all duration-300 ease-out delay-500" enter-to-class="opacity-100 translate-y-0">
     <BikeFilters v-if="state.status === 'success'" :nb-uncovered="nonCoveredParkingsSpots"
-      :nb-covered="coveredParkingsSpots" :nb-korrigo="premiumParkingsSpots" />
+      :nb-covered="coveredParkingsSpots" :nb-korrigo="premiumParkingsSpots" @click-geoloc="handleClickGeoloc" />
   </Transition>
 
   <main class="relative z-0 h-screen w-screen grid place-items-center">
@@ -102,6 +115,12 @@ const { filterUncovered, filterCovered, filterKorrigo } = storeToRefs(useMap())
         :options="extraOptions" :useGlobalLeaflet="true">
         <LControlZoom position="bottomright" />
         <LTileLayer v-once :url="MAP_TILELAYER_URL" layer-type="base" />
+
+        <LMarker v-if="userCoords" :lat-lng="[userCoords.latitude, userCoords.longitude]">
+          <LIcon>
+            <PhMapPin size="24" weight="fill" class="text-amber-400" />
+          </LIcon>
+        </LMarker>
 
         <BikeClusterLayer :parkings="coveredParkings" group="covered" :visible="filterCovered" :max-cluster-radius
           :disable-clustering-at-zoom />
