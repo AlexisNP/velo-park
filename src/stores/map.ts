@@ -36,6 +36,10 @@ export const useMap = defineStore('map', () => {
 
   const spotsRange = ref<[number, number]>([SPOTS_MIN, SPOTS_MAX])
 
+  // Routing
+  const activeRoute = ref<GeoJSON.LineString | null>(null)
+  const isRoutingLoading = ref(false)
+
   return {
     zoom,
     minZoom,
@@ -52,5 +56,7 @@ export const useMap = defineStore('map', () => {
     filterCargoOnly,
     filterStdOnly,
     spotsRange,
+    activeRoute,
+    isRoutingLoading,
   }
 })

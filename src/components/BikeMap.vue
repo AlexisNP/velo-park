@@ -10,12 +10,13 @@ import type { ApiResponse } from '@/types/Api'
 import type { BikeParking } from '@/types/Bikes'
 import { API_BASE_URL, API_LIMIT, MAP_TILELAYER_URL, SpotAccess, SpotType } from '@/utils/const'
 import { useQuery } from '@pinia/colada'
-import { LControlZoom, LIcon, LMap, LMarker, LTileLayer } from '@vue-leaflet/vue-leaflet'
+import { LControlZoom, LGeoJson, LIcon, LMap, LMarker, LTileLayer } from '@vue-leaflet/vue-leaflet'
 import BikeFilters from './BikeFilters.vue'
 import { computed, ref, useTemplateRef } from 'vue'
 import { storeToRefs } from 'pinia'
 import BikeClusterLayer from './BikeClusterLayer.vue'
 import { PhCircleNotch, PhMapPin } from '@phosphor-icons/vue'
+import { useRouting } from '@/composables/useRouting'
 
 // Map setup
 const mapRef = useTemplateRef<{ leafletObject: Map }>('map')
@@ -91,6 +92,11 @@ function handleClickGeoloc() {
     mapRef.value?.leafletObject.flyTo([userCoords.value.latitude, userCoords.value.longitude], 12)
   }
 }
+
+// Routing
+const { activeRoute } = useRouting()
+const showGeolocationNudge = ref(false)
+
 </script>
 
 <template>
@@ -98,6 +104,12 @@ function handleClickGeoloc() {
     enter-active-class="transition-all duration-300 ease-out delay-500" enter-to-class="opacity-100 translate-y-0">
     <BikeFilters v-if="state.status === 'success'" :nb-uncovered="nonCoveredParkingsSpots"
       :nb-covered="coveredParkingsSpots" :nb-korrigo="premiumParkingsSpots" @click-geoloc="handleClickGeoloc" />
+  </Transition>
+
+  <Transition>
+    <div v-if="showGeolocationNudge" class="...">
+      Activez la géolocalisation pour obtenir un itinéraire
+    </div>
   </Transition>
 
   <main class="relative z-0 h-screen w-screen grid place-items-center">
@@ -116,18 +128,20 @@ function handleClickGeoloc() {
         <LControlZoom position="bottomright" />
         <LTileLayer v-once :url="MAP_TILELAYER_URL" layer-type="base" />
 
+        <LGeoJson v-if="activeRoute" :geojson="activeRoute" />
+
         <LMarker v-if="userCoords" :lat-lng="[userCoords.latitude, userCoords.longitude]">
           <LIcon>
             <PhMapPin size="24" weight="fill" class="text-amber-400" />
           </LIcon>
         </LMarker>
 
-        <BikeClusterLayer :parkings="coveredParkings" group="covered" :visible="filterCovered" :max-cluster-radius
-          :disable-clustering-at-zoom />
-        <BikeClusterLayer :parkings="nonCoveredParkings" group="non-covered" :visible="filterUncovered"
-          :max-cluster-radius :disable-clustering-at-zoom />
-        <BikeClusterLayer :parkings="premiumParkings" group="premium" :visible="filterKorrigo" :max-cluster-radius
-          :disable-clustering-at-zoom />
+        <BikeClusterLayer @nudge-geolocation="showGeolocationNudge = true" :parkings="coveredParkings" group="covered"
+          :visible="filterCovered" :max-cluster-radius :disable-clustering-at-zoom />
+        <BikeClusterLayer @nudge-geolocation="showGeolocationNudge = true" :parkings="nonCoveredParkings"
+          group="non-covered" :visible="filterUncovered" :max-cluster-radius :disable-clustering-at-zoom />
+        <BikeClusterLayer @nudge-geolocation="showGeolocationNudge = true" :parkings="premiumParkings" group="premium"
+          :visible="filterKorrigo" :max-cluster-radius :disable-clustering-at-zoom />
       </LMap>
     </template>
   </main>

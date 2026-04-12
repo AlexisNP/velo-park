@@ -1,13 +1,14 @@
 <script lang="ts" setup>
-import { cn } from '@/utils/cn';
+import { useRouting } from '@/composables/useRouting';
+import { SPOTS_MAX, useMap } from '@/stores/map';
 import type { BikeParking } from '@/types/Bikes';
+import { cn } from '@/utils/cn';
+import { BOXED_KEY, COVERED_KEY, KORRIGO_KEY, UNCOVERED_KEY } from '@/utils/const';
 import { PhBicycle, PhLockKey, PhSquareHalf, PhWarehouse } from '@phosphor-icons/vue';
 import { LIcon, LMarker, LPopup } from '@vue-leaflet/vue-leaflet';
 import type { PointTuple } from 'leaflet';
-import { computed, ref } from 'vue';
-import { UNCOVERED_KEY, COVERED_KEY, BOXED_KEY, KORRIGO_KEY } from '@/utils/const';
 import { storeToRefs } from 'pinia';
-import { SPOTS_MAX, useMap } from '@/stores/map';
+import { computed, ref } from 'vue';
 
 const props = defineProps<{
   park: BikeParking
@@ -40,10 +41,28 @@ const isMarkerVisibleEquipments = computed(() => {
 })
 
 const isMarkerVisible = computed(() => isMarkerVisibleLayers.value && isMarkerVisibleEquipments.value)
+
+// Routing
+const { routeTo } = useRouting()
+const { userCoords } = storeToRefs(useMap())
+
+const emit = defineEmits<{
+  nudgeGeolocation: []
+}>()
+
+async function handleMarkerClick() {
+  if (!userCoords.value) {
+    emit('nudgeGeolocation')
+    return
+  }
+
+  await routeTo(props.park)
+}
 </script>
 
 <template>
-  <LMarker :lat-lng="[park.geo_point_2d.lat, park.geo_point_2d.lon]" :visible="isMarkerVisible">
+  <LMarker :lat-lng="[park.geo_point_2d.lat, park.geo_point_2d.lon]" :visible="isMarkerVisible"
+    @click="handleMarkerClick">
     <LPopup :options="{ offset: popupOffset, maxWidth: 520, minWidth: 240 }">
       <div>
         <h2 class="font-bold">

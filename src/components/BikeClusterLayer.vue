@@ -10,11 +10,14 @@ defineProps<{
   maxClusterRadius: number
   disableClusteringAtZoom: number
 }>()
+
+const emit = defineEmits<{ nudgeGeolocation: [] }>()
 </script>
 
 <template>
   <LMarkerClusterGroup v-if="parkings.length > 0" :visible :max-cluster-radius :disable-clustering-at-zoom>
-    <BikeMarker v-once v-for="park in parkings" :key="park.id_parc_velo" :park :group />
+    <BikeMarker @nudge-geolocation="emit('nudgeGeolocation')" v-once v-for="park in parkings" :key="park.id_parc_velo"
+      :park :group />
   </LMarkerClusterGroup>
 </template>
 
