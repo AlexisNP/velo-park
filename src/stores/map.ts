@@ -20,7 +20,7 @@ export const useMap = defineStore('map', () => {
   }
 
   // Cluster layers options
-  const maxClusterRadius = 40
+  const maxClusterRadius = 60
   const disableClusteringAtZoom = 17
 
   // Geolocation

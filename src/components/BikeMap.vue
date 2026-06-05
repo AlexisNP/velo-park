@@ -10,13 +10,14 @@ import type { ApiResponse } from '@/types/Api'
 import type { BikeParking } from '@/types/Bikes'
 import { API_BASE_URL, API_LIMIT, MAP_TILELAYER_URL_DARK, MAP_TILELAYER_URL_LIGHT, SpotAccess, SpotType } from '@/utils/const'
 import { useQuery } from '@pinia/colada'
-import { LControlZoom, LIcon, LMap, LMarker, LTileLayer } from '@vue-leaflet/vue-leaflet'
+import { LControlZoom, LMap, LTileLayer } from '@vue-leaflet/vue-leaflet'
 import BikeFilters from './BikeFilters.vue'
 import { computed, ref, useTemplateRef } from 'vue'
 import { storeToRefs } from 'pinia'
 import BikeClusterLayer from './BikeClusterLayer.vue'
-import { PhCircleNotch, PhMapPin } from '@phosphor-icons/vue'
+import { PhCircleNotch } from '@phosphor-icons/vue'
 import { useDark } from '@vueuse/core'
+import BikeUserMarker from './BikeUserMarker.vue'
 
 // Map setup
 const mapRef = useTemplateRef<{ leafletObject: Map }>('map')
@@ -122,11 +123,7 @@ function handleClickGeoloc() {
         <LControlZoom position="bottomright" />
         <LTileLayer v-once :url="mapTilelayer" layer-type="base" />
 
-        <LMarker v-if="userCoords" :lat-lng="[userCoords.latitude, userCoords.longitude]">
-          <LIcon>
-            <PhMapPin size="24" weight="fill" class="text-amber-400" />
-          </LIcon>
-        </LMarker>
+        <BikeUserMarker v-if="userCoords" />
 
         <BikeClusterLayer :parkings="coveredParkings" group="covered" :visible="filterCovered" :max-cluster-radius
           :disable-clustering-at-zoom />
