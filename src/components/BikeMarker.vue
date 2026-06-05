@@ -84,7 +84,7 @@ const isMarkerVisible = computed(() => isMarkerVisibleLayers.value && isMarkerVi
       { 'korrigo': park.condition_acces === KORRIGO_KEY },
       { 'highlight': park.type === BOXED_KEY || park.type === COVERED_KEY },
     )">
-      <PhBicycle v-if="park.type === UNCOVERED_KEY" size="18" />
+      <PhBicycle v-if="park.type === UNCOVERED_KEY" size="18" weight="fill" />
       <PhWarehouse v-else-if="park.type === COVERED_KEY" size="18" weight="light" />
       <PhSquareHalf v-else-if="park.type === BOXED_KEY" size="18" weight="light" />
       <PhLockKey v-else-if="park.condition_acces === KORRIGO_KEY" size="18" weight="fill" />
@@ -95,8 +95,10 @@ const isMarkerVisible = computed(() => isMarkerVisibleLayers.value && isMarkerVi
 <style lang="scss">
 .leaflet-marker-icon:not(.marker-cluster) {
   border-radius: 50%;
-  color: var(--color-muted-foreground);
-  background-color: var(--color-background);
+  color: color-mix(in srgb, var(--color-foreground) 80%, var(--color-background));
+  background-color: color-mix(in srgb, var(--color-background) 85%, var(--color-foreground));
+  border: 1px solid color-mix(in srgb, var(--color-muted-foreground) 50%, var(--color-background));
+  box-shadow: var(--shadow);
   display: grid;
   place-items: center;
 

@@ -1,5 +1,5 @@
-export const MAP_TILELAYER_URL =
-  'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
+export const MAP_TILELAYER_URL_LIGHT = 'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
+export const MAP_TILELAYER_URL_DARK = 'http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
 
 export const API_BASE_URL =
   'https://data.rennesmetropole.fr/api/explore/v2.1/catalog/datasets/parkings_velos_sur_rennes_metropole/records'

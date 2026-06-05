@@ -21,19 +21,19 @@ defineProps<{
 <style lang="scss">
 .marker-cluster div {
   font-family: var(--default-font-family);
-  font-size: .9em;
+  font-size: .95em;
 }
 
 .marker-cluster span {
   font-weight: var(--font-weight-bold);
-  opacity: .85;
+  opacity: .5;
 }
 
 .marker-cluster-small {
-  background-color: color-mix(in srgb, var(--color-green-400) 10%, transparent);
+  background-color: color-mix(in srgb, var(--color-green-400) 7.5%, transparent);
 
   div {
-    background-color: color-mix(in srgb, var(--color-green-400) 15%, transparent);
+    background-color: color-mix(in srgb, var(--color-green-400) 10%, transparent);
   }
 }
 
@@ -41,7 +41,7 @@ defineProps<{
   background-color: color-mix(in srgb, var(--color-amber-500) 12.5%, transparent);
 
   div {
-    background-color: color-mix(in srgb, var(--color-amber-500) 20%, transparent);
+    background-color: color-mix(in srgb, var(--color-amber-500) 15%, transparent);
   }
 }
 
@@ -49,7 +49,7 @@ defineProps<{
   background-color: color-mix(in srgb, var(--color-rose-500) 15%, transparent);
 
   div {
-    background-color: color-mix(in srgb, var(--color-rose-500) 25%, transparent);
+    background-color: color-mix(in srgb, var(--color-rose-500) 20%, transparent);
   }
 }
 </style>
